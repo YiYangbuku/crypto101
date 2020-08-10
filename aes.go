@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"time"
 )
 
 func main() {
@@ -26,13 +27,16 @@ func main() {
 		fmt.Println(err)
 	}
 	var result string
+	before := time.Now()
 	switch *mode {
 	case 0:
 		result = encrypt(gcm, *text)
 	case 1:
 		result = decrypt(gcm, *text)
 	}
+	after := time.Now()
 	fmt.Println(result)
+	fmt.Println("cost", (after.UnixNano() - before.UnixNano()) / int64(time.Millisecond), "ms")
 }
 
 func decrypt(gcm cipher.AEAD, text string) string {
