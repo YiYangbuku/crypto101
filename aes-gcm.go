@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"time"
 )
 
@@ -36,6 +37,10 @@ func main() {
 	}
 	after := time.Now()
 	fmt.Println(result)
+	err = ioutil.WriteFile("./result", []byte(result), 0644)
+	if err != nil {
+		fmt.Println(err)
+	}
 	fmt.Println("cost", (after.UnixNano() - before.UnixNano()) / int64(time.Millisecond), "ms")
 }
 
