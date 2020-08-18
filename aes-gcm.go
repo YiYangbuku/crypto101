@@ -16,6 +16,7 @@ func main() {
 	key := []byte("somekeysomekeysomekeysomekeyabcd")
 	text := flag.String("text", "", "The plaintext to be encrypt/decrypt")
 	mode := flag.Int("mode", 0, "Mode: 0 -> encrypt(default), 1 -> decrypt")
+	ad := flag.String("ad", "", "AdditionalData: the additional data used in gcm encryption/decryption")
 	flag.Parse()
 
 	c, err := aes.NewCipher(key)
@@ -31,9 +32,9 @@ func main() {
 	before := time.Now()
 	switch *mode {
 	case 0:
-		result = encryptGcm(gcm, *text)
+		result = encryptGcm(gcm, *text, []byte(*ad))
 	case 1:
-		result = decryptGcm(gcm, *text)
+		result = decryptGcm(gcm, *text, []byte(*ad))
 	}
 	after := time.Now()
 	fmt.Println(result)
@@ -44,26 +45,26 @@ func main() {
 	fmt.Println("cost", (after.UnixNano() - before.UnixNano()) / int64(time.Millisecond), "ms")
 }
 
-func decryptGcm(gcm cipher.AEAD, text string) string {
+func decryptGcm(gcm cipher.AEAD, text string, additionalData []byte) string {
 	nonceSize := gcm.NonceSize()
 	bytes, err := base64.StdEncoding.DecodeString(text)
 	if err != nil {
 		fmt.Println(err)
 	}
 	nonce, ciphertext := bytes[:nonceSize], bytes[nonceSize:]
-	open, err := gcm.Open(nil, nonce, ciphertext, nil)
+	open, err := gcm.Open(nil, nonce, ciphertext, additionalData)
 	if err != nil {
 		fmt.Println(err)
 	}
 	return string(open)
 }
 
-func encryptGcm(gcm cipher.AEAD, text string) string {
+func encryptGcm(gcm cipher.AEAD, text string, additionalData []byte) string {
 	nonce := make([]byte, gcm.NonceSize())
 
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
 		fmt.Println(err)
 	}
-	ciphertext := gcm.Seal(nonce, nonce, []byte(text), nil)
+	ciphertext := gcm.Seal(nonce, nonce, []byte(text), additionalData)
 	return base64.StdEncoding.EncodeToString(ciphertext)
 }
