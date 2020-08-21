@@ -37,7 +37,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("cost", (after.UnixNano() - before.UnixNano()) / int64(time.Millisecond), "ms")
+	fmt.Println("cost", after.Nanosecond() - before.Nanosecond(), "ns")
 }
 
 func decryptRsaForSign(privateKey rsa.PrivateKey, text string) string {

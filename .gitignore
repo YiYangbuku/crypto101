@@ -14,3 +14,10 @@
 .glide/
 .idea
 result
+
+aes-gcm
+rsa
+base64
+raw-aes
+raw-rsa
+sha
